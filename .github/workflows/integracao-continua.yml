@@ -34,10 +34,14 @@ jobs:
 
     - name: Executa testes unitários
       run: mvn -B verify 
+      
+    - name: gera-relatorio-jacoco
+      run: nvm jacoco:prepare-agent verify
 
     - name: Build and static analyze
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=lucasbeninca_ci_github_aws
+      run: nvm sonar:sonar -Dsonar.projectKey=lucasbeninca_ci_github_aws
+      
     
     
