@@ -41,7 +41,7 @@ jobs:
     - name: Build and static analyze
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: nvm sonar:sonar -Dsonar.projectKey=lucasbeninca_ci_github_aws
+      run: mvn sonar:sonar -Dsonar.projectKey=lucasbeninca_ci_github_aws
       
     
     
