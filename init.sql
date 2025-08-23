@@ -1,1 +1,1 @@
-CREATE DATABASE IF NOT EXISTS vollmed_api;
+CREATE DATABASE db_adopet;

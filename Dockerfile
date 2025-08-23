@@ -1,14 +1,7 @@
-FROM openjdk:17
-
+FROM node:20
 WORKDIR /app
-
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
-COPY src src
-
-RUN ./mvnw package -DskipTests
-
-ARG JAR_FILE=target/*.jar
-
-CMD java -jar target/*.jar
+COPY package* .
+RUN npm install
+COPY . .
+RUN npm run build
+CMD ["node", "dist/main.js"]

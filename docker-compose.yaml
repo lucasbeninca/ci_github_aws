@@ -1,35 +1,50 @@
-version: '3'
+version: '3.5'
+
 services:
-  mysqldb:
-    image: mysql:8.0.36
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=vollmed_api
-    volumes:
-      - ./mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    restart: unless-stopped
+  frontend:
+    build:
+      context: ../adopet-frontend
+    container_name: adopet-frontend
     ports:
-      - "3306:3306"
+      - "80:3000"
     networks:
-      - vollmed
-  
-  api:
+      - adopet
+    restart: unless-stopped
+
+  backend:
     build: .
-    container_name: vollmed
-    restart: unless-stopped
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/vollmed_api?createDatabaseIfNotExist=true
-    depends_on: 
-      - mysqldb
+    container_name: adopet-backend
+    volumes:
+      - .:/app
+    command: npm run start
     ports:
-      - "8000:8080"
+      - "3000:3000"
+    depends_on:
+      - postgres
     networks:
-      - vollmed
+      - adopet
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:latest
+    container_name: adopet-db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: db_adopet
+      PGDATA: /data/postgres/new
+    volumes:
+      - postgres:/data/postgres
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5433:5432"
+    networks:
+      - adopet
+    restart: unless-stopped
 
 networks:
-  vollmed:
+  adopet:
     driver: bridge
 
 volumes:
-  mysql-data:
+  postgres:
