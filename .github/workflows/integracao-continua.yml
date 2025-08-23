@@ -29,3 +29,10 @@ jobs:
         sudo chmod +x /usr/local/bin/docker-compose
         docker-compose --version
         
+    - name: Roda Docker Compose
+      run: docker-compose up -d
+
+    - name: Executa testes unitários
+      run: mvn -B verify
+    
+    
