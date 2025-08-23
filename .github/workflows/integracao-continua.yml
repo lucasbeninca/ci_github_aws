@@ -36,7 +36,7 @@ jobs:
       run: mvn -B verify 
       
     - name: gera-relatorio-jacoco
-      run: nvm jacoco:prepare-agent verify
+      run: mvn jacoco:prepare-agent verify
 
     - name: Build and static analyze
       env:
