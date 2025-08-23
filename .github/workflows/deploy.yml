@@ -1,0 +1,46 @@
+name: deploy Voll Med
+on: 
+  push:
+    branches: ["main"]
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: configura JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Configura Docker Compose
+      run: |
+        sudo rm -f /usr/local/bin/docker-compose
+        curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose --version
+    - name: Roda Docker Compose
+      run: docker-compose up -d
+
+    - name: deloys para EC2
+      env:
+        PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+        USER: ubuntu
+        HOST: 56.125.145.52
+      run: |
+       echo "$PRIVATE_KEY" > deploy_key.pem
+       chmod 600 deploy_key.pem
+
+       docker save -o vollmed-api.tar vollmed-api_api
+
+       scp -o StrictHostKeyChecking=no -i deploy_key.pem vollmed-api.tar $USER@$HOST:/home/ubuntu/
+       scp -o StrictHostKeyChecking=no -i deploy_key.pem init.sql $USER@$HOST:/home/ubuntu/
+       scp -o StrictHostKeyChecking=no -i deploy_key.pem docker-compose-prod.yaml $USER@$HOST:/home/ubuntu/
+       scp -o StrictHostKeyChecking=no -i deploy_key.pem script-deploy.sh $USER@$HOST:/home/ubuntu/  
+
+       ssh -i deploy_key.pem $USER@$HOST "chmod +x script-deploy.sh && ./script-deploy.sh"
+
+       
+      
